@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.2.1.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename = 'myScript.js')}}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename = 'box.css')}}" media="screen" />
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.5.0/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/3.5.0/js/tabulator.min.js"></script>
+
+</head>
+<body>
+
+<h1 style="text-align:center;">MRIR - Multilingual Radiology Information Retrieval</h1>
+
+<form method="POST" enctype="multipart/form-data" id="fileUploadForm">
+    <textarea class="box-css" name="QueryField" placeholder="Input query">Dois radiologistas analisaram independentemente as imagens HRCT dos pacientes e aplicaram a pontuação Bhalla modificada. A confiabilidade intra e interobservadores foram avaliados de acordo com o coeficiente de correlação intraclasse (ICC). Na fibrose cística (CF), a infecção bacteriana crónica é responsável por danos estruturais pulmonares e dificuldade respiratória progressiva. Falhas respiratórias representam 95% das mortes em pacientes com CF</textarea>
+<!--rows="7" cols="70"-->
+    <br/>
+
+    <input type="submit" class="button-css" value="Find Similar" id="btnSubmit"/>
+</form>
+
+<br>
+<div id="example-table"></div>
+
+
+<div id="show">
+    <table cellpadding="5"> <h4>Full text: </h4>
+        <tr>
+            <td id=full-text ></td>
+        </tr>
+    </table>
+</div>
+
+<div id="empty-result">No entities found in your query, please try again</div>
+
+</body>
+</html>
