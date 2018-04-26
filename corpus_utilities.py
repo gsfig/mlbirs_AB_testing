@@ -1,4 +1,5 @@
 import db_utilities
+import configparser
 from os import walk
 from ner_model import Ner
 import main_db
@@ -221,7 +222,7 @@ def get_corpus_id_and_text(config):
     corpus_dict = dict()
 
     for row in rows:
-        corpus_dict[row[0]] = {'text': row[1]} # dict { corpus_en_id : text : corpus_en_text }
+        corpus_dict[row[0]] = {'doc_text': row[1]} # dict { corpus_en_id : text : corpus_en_text }
 
     connection.close()
 
@@ -257,3 +258,13 @@ def get_owl_annotations_en(connection_corpus, doc_id):
                               AND en_has_annotation.document = ?''', (doc_id,)).fetchall()
 
     return rows
+
+
+def get_id_texts():
+    """
+    retrieves corpus id and text from database
+    :return: dict { corpus_en_id : text : corpus_en_text }
+    """
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    return get_corpus_id_and_text(config)

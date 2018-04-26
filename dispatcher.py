@@ -66,7 +66,7 @@ def organize_response(full_dict):
     for doc in full_dict:
         temp = dict()
         temp['doc_id'] = doc
-        temp['doc_text'] = full_dict[doc]['text']
+        temp['doc_text'] = full_dict[doc]['doc_text']
         temp['average_score'] = floored_percentage(full_dict[doc]['lin_mica'], 3)
         #print("val: " + str(full_dict[doc]['resnik_dishin']) + " %: " + str(temp['average_score']))
         doc_and_ave[doc] = temp
