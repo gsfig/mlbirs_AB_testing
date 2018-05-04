@@ -43,16 +43,17 @@ def dispatcher(query: str):
         return json.dumps({})
 
     # 3. find similar
-    #similar_dict = similarity_model.get_similar(config, entities) # dict { corpus_en_id : text, resnik dishin, resnik mica, lin mica }
+    similar_dict = similarity_model.get_similar(config, entities) # dict { corpus_en_id : text, resnik dishin, resnik mica, lin mica }
     # print(similar_dict)
 
     # 4. organize response
-    #response = organize_response(similar_dict)
+    response = organize_response(similar_dict)
 
-    response2 = development_file.get_response()
+    # response2 = development_file.get_response()
 
-    return response2
-    #return json.dumps(response)
+    # return response2
+    #print(response)
+    return json.dumps(response)
 
 
 def organize_response(full_dict):
@@ -83,4 +84,28 @@ def floored_percentage(val, digits):
     val *= 10 ** (digits + 2)
     return '{1:.{0}f}'.format(digits, floor(val) / 10 ** digits)
 
+
+def add_blanks(text, stop_words_file):
+    """
+    adds spaces and new lines to text from txt file
+    :param text:
+    :return: text with spaces and new lines
+    """
+
+    with open(stop_words_file) as f:
+        stop_words = f.readlines()
+        stop_words = [x.strip() for x in stop_words]
+
+        # print(stop_words)
+
+    for stop_w in stop_words:
+        to_replace = "<br />" + stop_w + "<br />"
+        to_replace = to_replace.replace(":", "")
+        text = text.replace(stop_w, to_replace)
+        # print('stop_word: ' + stop_w + ' replace: ' + to_replace)
+        # text = text.replace("\n\n", "\n")
+
+    # print(text)
+
+    return text
 

@@ -1,3 +1,6 @@
+from os.path import isfile
+from os import remove
+
 
 def development(config):
     """

@@ -51,6 +51,7 @@ def annotate_corpus(connection, corpus_path,  file_start_pt, file_start_en, file
     """
 
     cursor = connection.cursor()
+    stop_words_file = config.get("Corpus", "stopwords")
 
     ner = Ner(config)
 
@@ -60,7 +61,7 @@ def annotate_corpus(connection, corpus_path,  file_start_pt, file_start_en, file
     for directory in dirs:
 
         if flag:
-            # flag = False  # for development, only adds one file
+            flag = False  # for development, only adds one file
 
             path_pt = corpus_path + "/" + directory + "/" + file_start_pt + file_ext
             path_en = corpus_path + "/" + directory + "/" + file_start_en + file_ext
@@ -71,7 +72,7 @@ def annotate_corpus(connection, corpus_path,  file_start_pt, file_start_en, file
                 en_text = f_en.read()
 
             inserted_pt_id = add_original_text(cursor, connection, pt_text)
-            inserted_id = add_english(cursor, connection, en_text, inserted_pt_id)
+            inserted_id = add_english(cursor, connection, en_text, inserted_pt_id, stop_words_file)
 
             print("inserted id: " + str(inserted_id))
 
@@ -133,21 +134,48 @@ def add_original_text(cursor, connection, text):
     return cursor.lastrowid
 
 
-def add_english(cursor, connection, text, inserted_pt_id):
+def add_english(cursor, connection, text, inserted_pt_id, stop_words_file):
     """
     add english text to corpus database
     :param cursor: corpus database
     :param connection: corpus database
     :param text: to insert in database
+    :param stop_words_file: file with stop words to divide
     :param inserted_pt_id: database id of previously inserted pt text, to which this text is a translation_model for
     :return: database id of inserted row
     """
 
+    text = add_blanks(text, stop_words_file)
     cursor.execute('''  
                         INSERT OR IGNORE INTO english_translation (original_text, en_text) VALUES (?,?)
                          ''', (inserted_pt_id, text,))
     connection.commit()
     return cursor.lastrowid
+
+
+def add_blanks(text, stop_words_file):
+    """
+    adds spaces and new lines to text from txt file
+    :param text:
+    :return: text with spaces and new lines
+    """
+
+    with open(stop_words_file) as f:
+        stop_words = f.readlines()
+        stop_words = [x.strip() for x in stop_words]
+
+        # print(stop_words)
+
+    for stop_w in stop_words:
+        to_replace = "\n" + stop_w + "\n"
+        to_replace = to_replace.replace(":", "")
+        text = text.replace(stop_w, to_replace)
+        # print('stop_word: ' + stop_w + ' replace: ' + to_replace)
+        text = text.replace("\n\n", "\n")
+
+    # print(text)
+
+    return text
 
 
 def make_tables(connection):
@@ -222,7 +250,7 @@ def get_corpus_id_and_text(config):
     corpus_dict = dict()
 
     for row in rows:
-        corpus_dict[row[0]] = {'doc_text': row[1]} # dict { corpus_en_id : text : corpus_en_text }
+        corpus_dict[row[0]] = {'doc_text': row[1]} # dict { corpus_en_id : doc_text : corpus_en_text }
 
     connection.close()
 
@@ -267,4 +295,24 @@ def get_id_texts():
     """
     config = configparser.ConfigParser()
     config.read('config.ini')
+
+    #TODO: test removing \u200b \u200b, maybe encode(utf) ???
+    # dict { corpus_en_id : doc_text : corpus_en_text }
+
     return get_corpus_id_and_text(config)
+
+
+def get_stop_words():
+    """
+    retrieves stop words as a list
+    :return:
+    """
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+    stop_words_file = config.get("Corpus", "stopwords")
+
+    with open(stop_words_file) as f:
+        stop_words = f.readlines()
+        stop_words = [x.strip() for x in stop_words]
+
+    return stop_words

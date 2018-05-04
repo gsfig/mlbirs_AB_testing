@@ -1,10 +1,37 @@
 
+// TODO: join full texts from full mlbirs and full-texts
+
 var full_texts;
+var stop_words;
 $(document).ready(function () {
     $("#introduction").hide();
     $("#mlbirs_full").hide();
     $("#full_texts").hide();
     $("#full_text").hide();
+
+    $.ajax({ // get all ids and texts and store to var full_texts
+            type: "GET",
+            //enctype: 'multipart/form-data',
+            url: "get_stop_words",
+            processData: false,
+            contentType: false,
+            cache: false,
+            timeout: 600000,
+            success: function (stop_w) {
+                // console.log("SUCCESS : ", stop_w);
+               stop_words = JSON.parse(stop_w);
+               // console.log("SUCCESS : ", stop_words);
+               //  prepare_pattern()
+            },
+            error: function (e) {
+                console.log("ERROR : ", e);
+
+            }
+        });
+
+
+
+
 
     $.ajax({ // get all ids and texts and store to var full_texts
             type: "GET",
@@ -18,7 +45,7 @@ $(document).ready(function () {
                 //console.log("SUCCESS : ", id_and_texts);
                 full_texts = JSON.parse(id_and_texts);
 
-                // TODO: scrable texts from task to task
+                // TODO: scramble texts from task to task
             },
             error: function (e) {
                 console.log("ERROR : ", e);
@@ -28,7 +55,6 @@ $(document).ready(function () {
 
     $("#btn-introduction").click(function (event) {
 
-        console.log("click html1");
         $("#mlbirs_full").hide();
         $("#full_texts").hide();
         $("#introduction").show();
@@ -71,9 +97,10 @@ function show_full_texts(){
             $("#full_text").show();
 
             var alltext = row.getData().doc_text;
-            $("#all-text").text(function(){
-                console.log(alltext);
-                return alltext
+            $("#all-text").html(function(){
+                // console.log(format_text(alltext));
+
+                return format_text(alltext);
             });
 
         }
@@ -92,4 +119,19 @@ function show_full_texts(){
     // $("#example-table").tabulator("setFilter", "average_score", ">", 0.5);
 
 }
+
+function format_text(text_to_format){
+
+    var re;
+    var stop_w;
+    var replacement;
+    for(stop_w in stop_words){
+        re = new RegExp(stop_words[stop_w], "g");
+        replacement = "<br> <span class=\'title\'>".concat(stop_words[stop_w]).concat("<br> </span>");
+
+        text_to_format = text_to_format.replace(re,replacement);
+    }
+    return text_to_format;
+}
+
 

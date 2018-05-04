@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request
 from dispatcher import dispatcher
 import json
-from corpus_utilities import get_id_texts
+from corpus_utilities import get_id_texts, get_stop_words
 
 app = Flask(__name__)
 
@@ -23,6 +23,11 @@ def query():
     reply = dispatcher(query_text)
     return reply
 
+
+@app.route('/get_stop_words', methods=['GET'])
+def get_stop_w_file():
+
+    return json.dumps(get_stop_words())
 
 # if __name__ == '__main__':
     # execute only if run as the entry point into the program
